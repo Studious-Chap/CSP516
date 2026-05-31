@@ -1,0 +1,162 @@
+<!DOCTYPE html>
+<html lang="en">
+<head>
+<meta charset="UTF-8">
+<meta name="viewport" content="width=device-width, initial-scale=1.0">
+<title>Human Development — Flashcard Library</title>
+<link rel="preconnect" href="https://fonts.googleapis.com">
+<link rel="preconnect" href="https://fonts.gstatic.com" crossorigin>
+<link href="https://fonts.googleapis.com/css2?family=Fraunces:opsz,wght@9..144,400;9..144,500;9..144,600&family=Newsreader:opsz,wght@6..72,400;6..72,500&family=Spline+Sans+Mono:wght@400;500&display=swap" rel="stylesheet">
+<style>
+  :root{
+    --paper:#ece2cf;--paper-2:#e4d9c2;--card:#fbf6ea;--card-edge:#e9dec7;
+    --ink:#251f16;--ink-soft:#6a5f4c;--ink-faint:#988b73;
+    --rule:#bd4127;--accent:#bd4127;--teal:#2c6357;--shadow:rgba(60,46,20,0.18);
+  }
+  *{box-sizing:border-box;margin:0;padding:0;}
+  html,body{min-height:100%;}
+  body{
+    background:
+      radial-gradient(circle at 18% 0%, #f0e7d6 0%, transparent 55%),
+      radial-gradient(circle at 95% 100%, #e6dbc4 0%, transparent 50%),
+      var(--paper);
+    color:var(--ink);
+    font-family:'Newsreader', Georgia, serif;
+    display:flex;justify-content:center;
+    padding:36px 18px 70px;
+  }
+  body::before{
+    content:"";position:fixed;inset:0;pointer-events:none;opacity:.045;
+    background-image:url("data:image/svg+xml,%3Csvg xmlns='http://www.w3.org/2000/svg' width='160' height='160'%3E%3Cfilter id='n'%3E%3CfeTurbulence type='fractalNoise' baseFrequency='0.85' numOctaves='2'/%3E%3C/filter%3E%3Crect width='100%25' height='100%25' filter='url(%23n)'/%3E%3C/svg%3E");
+  }
+  .wrap{width:100%;max-width:720px;position:relative;z-index:1;}
+
+  .kicker{font-family:'Spline Sans Mono',monospace;font-size:.72rem;letter-spacing:.28em;text-transform:uppercase;color:var(--accent);font-weight:500;}
+  h1{font-family:'Fraunces',serif;font-weight:600;font-size:clamp(2rem,6vw,3rem);line-height:1.02;margin:.16em 0 .18em;letter-spacing:-.015em;}
+  .lede{color:var(--ink-soft);font-size:1.05rem;max-width:52ch;line-height:1.5;}
+  .legend{display:flex;gap:18px;margin:20px 0 4px;font-family:'Spline Sans Mono',monospace;font-size:.7rem;letter-spacing:.06em;text-transform:uppercase;color:var(--ink-faint);}
+  .legend span{display:inline-flex;align-items:center;gap:.5em;}
+  .dotR{width:8px;height:8px;border-radius:50%;background:var(--accent);}
+  .dotG{width:8px;height:8px;border-radius:50%;background:transparent;border:1.5px solid var(--ink-faint);}
+
+  .section{margin-top:34px;}
+  .section-head{display:flex;align-items:baseline;gap:12px;margin-bottom:14px;}
+  .section-head h2{font-family:'Fraunces',serif;font-weight:500;font-size:1.18rem;letter-spacing:.01em;color:var(--ink);}
+  .section-head .line{flex:1;height:1px;background:var(--card-edge);}
+  .section-head .rng{font-family:'Spline Sans Mono',monospace;font-size:.7rem;color:var(--ink-faint);letter-spacing:.08em;}
+
+  .grid{display:grid;gap:12px;}
+  .ch{
+    display:flex;align-items:center;gap:16px;text-decoration:none;color:inherit;
+    background:var(--card);border:1px solid var(--card-edge);border-radius:13px;
+    padding:16px 18px;position:relative;overflow:hidden;
+    box-shadow:0 10px 26px -20px var(--shadow);
+    transition:transform .16s ease, box-shadow .16s ease, border-color .16s ease;
+  }
+  .ch::before{content:"";position:absolute;left:0;top:0;bottom:0;width:4px;background:var(--accent);opacity:.85;}
+  a.ch:hover{transform:translateY(-2px);box-shadow:0 16px 30px -18px var(--shadow);border-color:var(--ink-faint);}
+  .num{font-family:'Spline Sans Mono',monospace;font-size:1.3rem;font-weight:500;color:var(--ink);min-width:1.6em;text-align:center;}
+  .meta{flex:1;}
+  .ttl{font-family:'Fraunces',serif;font-weight:500;font-size:1.08rem;line-height:1.22;color:var(--ink);}
+  .status{font-family:'Spline Sans Mono',monospace;font-size:.62rem;letter-spacing:.14em;text-transform:uppercase;color:var(--teal);margin-top:3px;}
+  .arrow{color:var(--ink-faint);font-size:1.1rem;transition:transform .16s ease,color .16s ease;}
+  a.ch:hover .arrow{transform:translateX(3px);color:var(--ink);}
+
+  /* coming-soon (not yet uploaded) state */
+  .ch.soon{cursor:default;background:rgba(251,246,234,.45);box-shadow:none;}
+  .ch.soon::before{background:var(--ink-faint);opacity:.4;}
+  .ch.soon .num,.ch.soon .ttl{color:var(--ink-faint);}
+  .ch.soon .status{color:var(--ink-faint);}
+  .ch.soon .arrow{display:none;}
+
+  footer{margin-top:40px;text-align:center;color:var(--ink-faint);font-size:.8rem;font-family:'Spline Sans Mono',monospace;letter-spacing:.04em;line-height:1.7;}
+</style>
+</head>
+<body>
+<div class="wrap">
+  <div class="kicker">CSP 516 · Flashcard Library</div>
+  <h1>Human Development</h1>
+  <p class="lede">Chapter-by-chapter review decks. Pick a chapter to flip through its key terms and concepts.</p>
+
+  <div class="legend">
+    <span><span class="dotR"></span> Ready</span>
+    <span><span class="dotG"></span> Coming soon</span>
+  </div>
+
+  <div id="sections"></div>
+
+  <footer>
+    Tap a chapter to open its flashcards.<br>
+    Built as a study aid · update by uploading each new chapter deck.
+  </footer>
+</div>
+
+<script>
+/* ============================================================
+   TO ADD A CHAPTER:
+   1. Upload its deck file to this repo, named exactly:
+        chapter-02.html, chapter-03.html, ... chapter-15.html
+   2. Below, change that chapter's  ready:false  to  ready:true
+   That's the only edit needed — the link turns on automatically.
+   ============================================================ */
+const CHAPTERS = [
+  {n:1,  t:"Organizing Themes in Development",                          group:"Foundations",        ready:true },
+  {n:2,  t:"Genetics, Epigenetics, and the Brain",                      group:"Foundations",        ready:false},
+  {n:3,  t:"Cognitive Development in the Early Years",                  group:"The Early Years",    ready:false},
+  {n:4,  t:"Emotional and Social Development in the Early Years",       group:"The Early Years",    ready:false},
+  {n:5,  t:"The Emerging Self and Socialization in the Early Years",    group:"The Early Years",    ready:false},
+  {n:6,  t:"Realms of Cognition in Middle Childhood",                  group:"Middle Childhood",   ready:false},
+  {n:7,  t:"Self and Moral Development",                                group:"Middle Childhood",   ready:false},
+  {n:8,  t:"Gender and Peer Relationships",                            group:"Middle Childhood",   ready:false},
+  {n:9,  t:"Physical, Cognitive, and Identity Development in Adolescence", group:"Adolescence",     ready:false},
+  {n:10, t:"The Social World of Adolescence",                          group:"Adolescence",        ready:false},
+  {n:11, t:"Physical and Cognitive Development in Young Adulthood",     group:"Young Adulthood",    ready:false},
+  {n:12, t:"Socioemotional and Vocational Development in Young Adulthood", group:"Young Adulthood", ready:false},
+  {n:13, t:"Middle Adulthood",                                         group:"Adulthood & Aging", ready:false},
+  {n:14, t:"Living Well: Stress, Coping, and Life Satisfaction",       group:"Adulthood & Aging", ready:false},
+  {n:15, t:"Gains and Losses in Late Adulthood",                       group:"Adulthood & Aging", ready:false},
+];
+
+const GROUP_ORDER = ["Foundations","The Early Years","Middle Childhood","Adolescence","Young Adulthood","Adulthood & Aging"];
+
+function fileName(n){ return "chapter-" + String(n).padStart(2,"0") + ".html"; }
+
+const container = document.getElementById('sections');
+
+GROUP_ORDER.forEach(group => {
+  const chs = CHAPTERS.filter(c => c.group === group);
+  if(!chs.length) return;
+
+  const sec = document.createElement('div');
+  sec.className = 'section';
+
+  const head = document.createElement('div');
+  head.className = 'section-head';
+  const nums = chs.map(c => c.n);
+  const range = nums.length > 1 ? ("Ch " + nums[0] + "–" + nums[nums.length-1]) : ("Ch " + nums[0]);
+  head.innerHTML = '<h2>' + group + '</h2><span class="line"></span><span class="rng">' + range + '</span>';
+  sec.appendChild(head);
+
+  const grid = document.createElement('div');
+  grid.className = 'grid';
+
+  chs.forEach(c => {
+    const el = document.createElement(c.ready ? 'a' : 'div');
+    el.className = 'ch' + (c.ready ? '' : ' soon');
+    if(c.ready) el.href = fileName(c.n);
+    el.innerHTML =
+      '<span class="num">' + c.n + '</span>' +
+      '<span class="meta">' +
+        '<span class="ttl">' + c.t + '</span>' +
+        '<span class="status">' + (c.ready ? 'Ready to study' : 'Coming soon') + '</span>' +
+      '</span>' +
+      '<span class="arrow">→</span>';
+    grid.appendChild(el);
+  });
+
+  sec.appendChild(grid);
+  container.appendChild(sec);
+});
+</script>
+</body>
+</html>
