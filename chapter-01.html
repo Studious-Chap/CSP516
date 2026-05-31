@@ -1,0 +1,519 @@
+<!DOCTYPE html>
+<html lang="en">
+<head>
+<meta charset="UTF-8">
+<meta name="viewport" content="width=device-width, initial-scale=1.0">
+<title>Chapter 1 Flashcards — Organizing Themes in Development</title>
+<link rel="preconnect" href="https://fonts.googleapis.com">
+<link rel="preconnect" href="https://fonts.gstatic.com" crossorigin>
+<link href="https://fonts.googleapis.com/css2?family=Fraunces:opsz,wght@9..144,400;9..144,500;9..144,600&family=Newsreader:opsz,wght@6..72,400;6..72,500&family=Spline+Sans+Mono:wght@400;500&display=swap" rel="stylesheet">
+<style>
+  :root{
+    --paper:#ece2cf;
+    --paper-2:#e4d9c2;
+    --card:#fbf6ea;
+    --card-edge:#e9dec7;
+    --ink:#251f16;
+    --ink-soft:#6a5f4c;
+    --ink-faint:#988b73;
+    --rule:#bd4127;
+    --accent:#bd4127;
+    --teal:#2c6357;
+    --shadow:rgba(60,46,20,0.18);
+  }
+  *{box-sizing:border-box;margin:0;padding:0;}
+  html,body{height:100%;}
+  body{
+    background:
+      radial-gradient(circle at 20% 0%, #f0e7d6 0%, transparent 55%),
+      radial-gradient(circle at 90% 100%, #e6dbc4 0%, transparent 50%),
+      var(--paper);
+    color:var(--ink);
+    font-family:'Newsreader', Georgia, serif;
+    min-height:100%;
+    display:flex;
+    justify-content:center;
+    padding:28px 18px 60px;
+  }
+  /* subtle paper grain */
+  body::before{
+    content:"";
+    position:fixed;inset:0;
+    pointer-events:none;
+    opacity:.045;
+    background-image:url("data:image/svg+xml,%3Csvg xmlns='http://www.w3.org/2000/svg' width='160' height='160'%3E%3Cfilter id='n'%3E%3CfeTurbulence type='fractalNoise' baseFrequency='0.85' numOctaves='2'/%3E%3C/filter%3E%3Crect width='100%25' height='100%25' filter='url(%23n)'/%3E%3C/svg%3E");
+  }
+  .wrap{width:100%;max-width:660px;position:relative;z-index:1;}
+
+  .backlink{display:inline-flex;align-items:center;gap:.45em;font-family:'Spline Sans Mono',monospace;font-size:.7rem;letter-spacing:.12em;text-transform:uppercase;color:var(--ink-soft);text-decoration:none;border:1px solid var(--card-edge);padding:7px 13px;border-radius:999px;margin-bottom:20px;transition:all .16s ease;}
+  .backlink:hover{border-color:var(--ink-faint);color:var(--ink);background:rgba(251,246,234,.6);}
+  header{margin-bottom:22px;}
+  .kicker{
+    font-family:'Spline Sans Mono', monospace;
+    font-size:.7rem;letter-spacing:.28em;text-transform:uppercase;
+    color:var(--accent);font-weight:500;
+  }
+  h1{
+    font-family:'Fraunces', serif;
+    font-weight:600;
+    font-size:clamp(1.7rem,5vw,2.5rem);
+    line-height:1.04;
+    margin:.18em 0 .12em;
+    letter-spacing:-.01em;
+  }
+  .sub{
+    color:var(--ink-soft);
+    font-size:.98rem;
+    display:flex;align-items:center;gap:.55em;flex-wrap:wrap;
+  }
+  .sub .dot{width:5px;height:5px;border-radius:50%;background:var(--ink-faint);display:inline-block;}
+  .sub .count{font-family:'Spline Sans Mono',monospace;font-size:.82rem;color:var(--ink-soft);}
+
+  /* category pills */
+  .cats{
+    display:flex;gap:8px;flex-wrap:wrap;
+    margin:20px 0 18px;
+  }
+  .pill{
+    font-family:'Spline Sans Mono',monospace;
+    font-size:.7rem;letter-spacing:.06em;text-transform:uppercase;
+    padding:6px 11px;border-radius:999px;
+    border:1px solid var(--card-edge);
+    background:rgba(251,246,234,.5);
+    color:var(--ink-soft);
+    cursor:pointer;transition:all .18s ease;
+    user-select:none;
+  }
+  .pill:hover{border-color:var(--ink-faint);color:var(--ink);}
+  .pill.active{background:var(--ink);color:var(--paper);border-color:var(--ink);}
+
+  /* card */
+  .scene{perspective:1600px;margin-bottom:18px;}
+  .card{
+    position:relative;width:100%;min-height:430px;
+    transition:transform .55s cubic-bezier(.4,.05,.2,1);
+    transform-style:preserve-3d;cursor:pointer;
+  }
+  .card.flipped{transform:rotateY(180deg);}
+  .card.no-anim{transition:none;}
+  .face{
+    position:absolute;inset:0;
+    -webkit-backface-visibility:hidden;backface-visibility:hidden;
+    background:var(--card);
+    border:1px solid var(--card-edge);
+    border-radius:14px;
+    box-shadow:0 18px 38px -22px var(--shadow), 0 2px 0 var(--card-edge);
+    padding:30px 30px 30px 54px;
+    display:flex;flex-direction:column;
+    overflow:hidden;
+  }
+  /* index-card red margin line */
+  .face::before{
+    content:"";position:absolute;top:0;bottom:0;left:38px;width:1.5px;
+    background:linear-gradient(var(--rule),var(--rule));opacity:.42;
+  }
+  .face-inner{overflow-y:auto;flex:1;display:flex;flex-direction:column;justify-content:center;}
+  .face-inner::-webkit-scrollbar{width:6px;}
+  .face-inner::-webkit-scrollbar-thumb{background:var(--card-edge);border-radius:3px;}
+
+  .tag{
+    font-family:'Spline Sans Mono',monospace;
+    font-size:.66rem;letter-spacing:.16em;text-transform:uppercase;
+    color:var(--teal);font-weight:500;margin-bottom:auto;
+  }
+  .label{
+    font-family:'Spline Sans Mono',monospace;
+    font-size:.6rem;letter-spacing:.22em;text-transform:uppercase;
+    color:var(--ink-faint);margin-bottom:.7em;
+  }
+  .front-term{
+    font-family:'Fraunces',serif;font-weight:500;
+    font-size:clamp(1.35rem,4.4vw,1.95rem);
+    line-height:1.18;color:var(--ink);letter-spacing:-.005em;
+  }
+  .back-answer{
+    font-family:'Newsreader',serif;
+    font-size:clamp(1.04rem,2.7vw,1.22rem);
+    line-height:1.5;color:#322a1d;
+  }
+  .hint{
+    font-family:'Spline Sans Mono',monospace;
+    font-size:.62rem;letter-spacing:.12em;text-transform:uppercase;
+    color:var(--ink-faint);margin-top:auto;padding-top:18px;
+    display:flex;align-items:center;gap:.5em;
+  }
+  .hint svg{width:13px;height:13px;opacity:.7;}
+  .back{transform:rotateY(180deg);background:var(--card);}
+
+  /* controls */
+  .controls{display:flex;align-items:center;gap:10px;margin-bottom:16px;}
+  .btn{
+    font-family:'Newsreader',serif;font-size:1rem;
+    border:1px solid var(--card-edge);background:rgba(251,246,234,.6);
+    color:var(--ink);border-radius:10px;padding:11px 16px;cursor:pointer;
+    transition:all .16s ease;display:flex;align-items:center;justify-content:center;gap:.5em;
+  }
+  .btn:hover{border-color:var(--ink-faint);background:var(--card);}
+  .btn:active{transform:translateY(1px);}
+  .btn svg{width:16px;height:16px;}
+  .btn-flip{flex:1;background:var(--ink);color:var(--paper);border-color:var(--ink);font-weight:500;}
+  .btn-flip:hover{background:#352c1f;}
+  .btn-nav{width:50px;}
+
+  .meta-row{display:flex;justify-content:space-between;align-items:center;gap:14px;margin-bottom:10px;}
+  .util{display:flex;gap:8px;}
+  .util .btn{padding:7px 12px;font-family:'Spline Sans Mono',monospace;font-size:.68rem;letter-spacing:.08em;text-transform:uppercase;}
+  .counter{font-family:'Spline Sans Mono',monospace;font-size:.78rem;color:var(--ink-soft);letter-spacing:.04em;}
+
+  .bar{height:4px;background:var(--paper-2);border-radius:999px;overflow:hidden;}
+  .bar-fill{height:100%;background:var(--accent);border-radius:999px;transition:width .3s ease;width:0%;}
+
+  footer{margin-top:26px;text-align:center;color:var(--ink-faint);font-size:.8rem;font-family:'Spline Sans Mono',monospace;letter-spacing:.04em;}
+
+  @media (max-width:480px){
+    .face{padding:24px 20px 24px 42px;}
+    .face::before{left:28px;}
+    .card{min-height:400px;}
+  }
+</style>
+</head>
+<body>
+<div class="wrap">
+  <a href="index.html" class="backlink">← All chapters</a>
+  <header>
+    <div class="kicker">Human Development · Review Deck</div>
+    <h1>Organizing Themes in Development</h1>
+    <div class="sub">
+      <span>Chapter 1 flashcards</span>
+      <span class="dot"></span>
+      <span class="count" id="total-count"></span>
+    </div>
+  </header>
+
+  <div class="cats" id="cats"></div>
+
+  <div class="meta-row">
+    <span class="counter" id="counter">Card 1 of 1</span>
+    <div class="util">
+      <button class="btn" id="shuffle">⤮ Shuffle</button>
+      <button class="btn" id="reset">↺ Reset</button>
+    </div>
+  </div>
+  <div class="bar"><div class="bar-fill" id="bar"></div></div>
+
+  <div class="scene" style="margin-top:18px;">
+    <div class="card" id="card">
+      <div class="face front">
+        <div class="face-inner">
+          <span class="tag" id="tag">CATEGORY</span>
+          <div>
+            <div class="label">Term / Prompt</div>
+            <div class="front-term" id="front">—</div>
+          </div>
+          <div class="hint">
+            <svg viewBox="0 0 24 24" fill="none" stroke="currentColor" stroke-width="2"><path d="M3 12a9 9 0 0 1 9-9M21 12a9 9 0 0 1-9 9"/><path d="M3 7v5h5M21 17v-5h-5"/></svg>
+            Tap card to reveal
+          </div>
+        </div>
+      </div>
+      <div class="face back">
+        <div class="face-inner">
+          <span class="tag" id="tag-back">CATEGORY</span>
+          <div>
+            <div class="label">Answer</div>
+            <div class="back-answer" id="back">—</div>
+          </div>
+          <div class="hint">
+            <svg viewBox="0 0 24 24" fill="none" stroke="currentColor" stroke-width="2"><path d="M3 12a9 9 0 0 1 9-9M21 12a9 9 0 0 1-9 9"/><path d="M3 7v5h5M21 17v-5h-5"/></svg>
+            Tap to flip back
+          </div>
+        </div>
+      </div>
+    </div>
+  </div>
+
+  <div class="controls">
+    <button class="btn btn-nav" id="prev" aria-label="Previous">
+      <svg viewBox="0 0 24 24" fill="none" stroke="currentColor" stroke-width="2"><path d="M15 18l-6-6 6-6"/></svg>
+    </button>
+    <button class="btn btn-flip" id="flip">Flip Card</button>
+    <button class="btn btn-nav" id="next" aria-label="Next">
+      <svg viewBox="0 0 24 24" fill="none" stroke="currentColor" stroke-width="2"><path d="M9 18l6-6-6-6"/></svg>
+    </button>
+  </div>
+
+  <footer>← → navigate · space / enter flips</footer>
+</div>
+
+<script>
+const CARDS = [
+  // ===== FOUNDATIONS =====
+  {c:`Foundations`, q:`What is "life span development"?`, a:`Human behavioral change from conception to death — covering both observable activity (e.g., crawling → walking) and mental activity (e.g., disorganized → logical thinking).`},
+  {c:`Foundations`, q:`What are the five goals of developmental science?`, a:`(1) Describe behavior at different ages, (2) predict responses to life's experiences at different ages, (3) explain/theorize why those characteristics appear, (4) understand individual differences, (5) understand cultural & generational influences.`},
+  {c:`Foundations`, q:`Why does developmental science matter to helping professionals?`, a:`It builds a knowledge base of age-related behaviors and the causal theories that organize them — expanding the range of problem-solving strategies a practitioner can offer clients.`},
+
+  // ===== REFLECTIVE PRACTICE =====
+  {c:`Reflective Practice`, q:`What is reflective practice?`, a:`Mastering a field's knowledge/skills, then going beyond rote technique to generate and test new understanding — treating client problems as hypotheses to test for "goodness of fit."`},
+  {c:`Reflective Practice`, q:`Whose view of education is "reflectivity" derived from?`, a:`John Dewey's — emphasizing careful examination of one's own beliefs as a precursor to practice.`},
+  {c:`Reflective Practice`, q:`Explain Schön's "high ground vs. swamp" metaphor.`, a:`The high, hard ground holds tidy problems solvable by research-based technique; the swamp holds messy, confusing problems that defy technical solutions — and those swamp problems are of greatest human concern.`},
+  {c:`Reflective Practice`, q:`What is the "dual curriculum" problem?`, a:`Trainees learn a formal, research-based curriculum in school and a separate "what is really done" curriculum on the job — and some lose sight of the value of research-based knowledge.`},
+  {c:`Reflective Practice`, q:`What sequence does Schön say reflective practice must follow?`, a:`First master standard rules/facts, then reason from those rules to harder cases, and ONLY THEN invent new approaches where familiar categories fail. (Don't put the cart before the horse.)`},
+  {c:`Reflective Practice`, q:`What does expert–novice research show about expertise?`, a:`Expertise is domain-specific — experts hold large, well-organized, well-practiced knowledge they retrieve almost automatically; they self-monitor and break problems into smaller units.`},
+  {c:`Reflective Practice`, q:`In reflective practice, what are the two "partial lenses"?`, a:`(1) Theory and (2) the practitioner's professional and life experience.`},
+  {c:`Reflective Practice`, q:`What are "implicit theories," and who studied them?`, a:`Personal, often-unexamined beliefs about how people change, built from experience and culture. Carol Dweck showed these beliefs reliably predict how people interpret situations.`},
+  {c:`Reflective Practice`, q:`How do beliefs about intelligence (Dweck) change a practitioner's approach?`, a:`Believing intelligence is malleable → a skill-building approach. Believing it is fixed → encouraging the client to cope with and adjust to limitations.`},
+  {c:`Reflective Practice`, q:`What is the best protection against misapplying your own biases?`, a:`Self-monitoring — being aware of what your theories are and recognizing they are only one possibility among many.`},
+
+  // ===== HISTORY =====
+  {c:`History`, q:`From what three roots did scientific developmental theories emerge?`, a:`Philosophical inquiry, the rise of biological science, and the growth of mass education that accompanied industrialization.`},
+  {c:`History`, q:`How were children generally viewed in medieval Europe?`, a:`Largely like small adults — at 6 or 7 they took on adult work. Their special characteristics were largely ignored, and childhood was not studied.`},
+  {c:`History`, q:`What did Locke and Rousseau contribute to developmental thought?`, a:`The idea that children only gradually develop the cognitive and personality structures that characterize adults.`},
+  {c:`History`, q:`What was Darwin's "baby biography"?`, a:`A detailed account of his young son's daily changes in language and behavior — an early form of child study, spurred by interest in evolution.`},
+  {c:`History`, q:`When did the idea that development continues across adulthood emerge, and why?`, a:`In the 20th century — a natural extension of child study, reinforced by rising life expectancy and the shift from multigenerational to nuclear families.`},
+
+  // ===== STAGE THEORIES (GENERAL) =====
+  {c:`Stage Theories`, q:`What is a "stage"?`, a:`A period (often years) during which behavior in a broad domain shares common qualities; behavior differs qualitatively from one stage to the next.`},
+  {c:`Stage Theories`, q:`What kind of change do stage theories describe?`, a:`Qualitative / transformational change (a change in kind, like a tree from a seed) — each stage is more complex than the last, implying directionality.`},
+  {c:`Stage Theories`, q:`What metaphor captures stage theory, and what does it imply?`, a:`A staircase — plateaus of stability punctuated by rapid transitions (discontinuity), not a gradual ramp.`},
+  {c:`Stage Theories`, q:`Are stage sequences universal?`, a:`Yes — individuals move at different rates, but the order of stages is seen as the same across cultures (a universal, invariant sequence).`},
+  {c:`Stage Theories`, q:`What is "functional continuity across stages"?`, a:`Even though the products of each stage differ qualitatively, the same underlying processes (e.g., brain maturation, social experience) drive the shifts.`},
+
+  // ===== FREUD =====
+  {c:`Freud`, q:`What does Freud's psychoanalytic theory describe?`, a:`Both the functioning of the adult personality and the childhood processes that develop it.`},
+  {c:`Freud`, q:`What is the id, and what principle governs it?`, a:`The inborn biological self and source of all psychic energy. Governed by the pleasure principle — the blind pursuit of immediate gratification.`},
+  {c:`Freud`, q:`What is the ego, and what principle governs it?`, a:`The rational, realistic self that develops as skills emerge. Governed by the reality principle — meeting the id's needs while accounting for real-world consequences.`},
+  {c:`Freud`, q:`What is the superego?`, a:`The internalized "parent" / conscience, formed in the preschool years; it produces guilt when behavior violates internalized parental standards.`},
+  {c:`Freud`, q:`Why did Freud call his stages "psychosexual"?`, a:`Because he believed changes in the id's energy initiate each stage. "Sexual" here means sensual — all biological drives and their satisfaction.`},
+  {c:`Freud`, q:`What is a "fixation"?`, a:`Getting "stuck" at a stage — caused by too little OR too much satisfaction — so that stage-related traits are carried into adulthood.`},
+  {c:`Freud`, q:`Name Freud's five psychosexual stages in order.`, a:`Oral → Anal → Phallic → Latency → Genital.`},
+  {c:`Freud`, q:`Oral stage — age and focus?`, a:`Birth–1 year. The mouth is the source of greatest pleasure. An oral fixation can lead to smoking or symbolic overdependency.`},
+  {c:`Freud`, q:`Anal stage — age and focus?`, a:`1–3 years. The anal area is central; tied to toilet training. Harsh or overly indulgent training → traits like being greedy or messy.`},
+  {c:`Freud`, q:`Phallic stage — age, focus, and significance?`, a:`3–5/6 years. Genitals are central; desire for the opposite-sex parent makes the same-sex parent a rival, resolved by identifying with that parent — Freud's account of how children acquire sex-typing AND moral values.`},
+  {c:`Freud`, q:`Latency stage — age and character?`, a:`6 years to puberty. A relatively quiet period; sexual urges are repressed, and energy is directed into work and play.`},
+  {c:`Freud`, q:`Genital stage — age and character?`, a:`Puberty through adulthood. Mature sexual needs drive behavior, channeled into socially acceptable activities such as work and partnership.`},
+  {c:`Freud`, q:`What is the status of Freud's theory today?`, a:`Little evidence for the specifics, and it carries early-1900s gender biases. But broad insights survive: the importance of early family relationships, unconscious motivation, and internal conflict.`},
+  {c:`Freud`, q:`What popular-culture Freudian idea does modern research NOT support?`, a:`That most of personality is formed before age 5 (during the first three stages).`},
+
+  // ===== ERIKSON =====
+  {c:`Erikson`, q:`How did Erikson revise Freud?`, a:`As a neo-Freudian he deemphasized the id and emphasized the rational ego. His stages are psychosocial (feelings/attitudes toward self and others) and span the whole life, birth to death.`},
+  {c:`Erikson`, q:`What initiates each Eriksonian "crisis"?`, a:`Two forces at once — changes inside the person (maturation, cognition, motor skills) AND corresponding changes in others' attitudes and expectations.`},
+  {c:`Erikson`, q:`Stage 1 + virtue?`, a:`Trust vs. Mistrust (birth–1 yr). Virtue = hope. Built through sensitive, responsive caregiving.`},
+  {c:`Erikson`, q:`Stage 2 + virtue?`, a:`Autonomy vs. Shame & Doubt (1–3 yrs). Virtue = willpower. Built through new motor and mental skills ("I can do it myself").`},
+  {c:`Erikson`, q:`Stage 3 + virtue?`, a:`Initiative vs. Guilt (3–5/6 yrs). Virtue = purpose. The child experiments with grown-up roles and responsibility.`},
+  {c:`Erikson`, q:`Stage 4 + virtue?`, a:`Industry vs. Inferiority (6–12 yrs). Virtue = competence. The child learns academic skills and compares with peers.`},
+  {c:`Erikson`, q:`Stage 5 + virtue?`, a:`Identity vs. Role Confusion (12–20 yrs). Virtue = identity / fidelity. The adolescent makes choices about values and vocation.`},
+  {c:`Erikson`, q:`Stage 6 + virtue?`, a:`Intimacy vs. Isolation (young adulthood). Virtue = love. The adult shares identity and commits to partnerships.`},
+  {c:`Erikson`, q:`Stage 7 + virtue?`, a:`Generativity vs. Stagnation (middle adulthood). Virtue = care. The adult contributes to the next generation.`},
+  {c:`Erikson`, q:`Stage 8 + virtue?`, a:`Ego Integrity vs. Despair (late adulthood). Virtue = wisdom. The adult comes to terms with life's successes and failures.`},
+  {c:`Erikson`, q:`What four features are common to all of Erikson's stages?`, a:`(1) Others' responsiveness sets the context; (2) attitudes toward self and others emerge together; (3) each crisis balances positive vs. negative, with positive outweighing; (4) success at one stage smooths later ones (earlier failures can be repaired).`},
+  {c:`Erikson`, q:`Why do helping professionals find Erikson appealing?`, a:`He focuses on feelings about self and others, assumes people are active and capable of later repair, was an optimist, and was attentive to cultural differences.`},
+
+  // ===== PIAGET =====
+  {c:`Piaget`, q:`What did Piaget call logical thinking, and how many stages did he propose?`, a:`Operational thought — developing through four stages from childhood through adolescence.`},
+  {c:`Piaget`, q:`Sensorimotor stage — age and key feature?`, a:`Birth–2 years. No representational thought yet; behavior shifts from reflexive to representational. Infants don't yet form mental images, store symbolic memories, or plan.`},
+  {c:`Piaget`, q:`Preoperational stage — age and key feature?`, a:`2–6/7 years. Representational thought appears but is "centered" (focused on one feature at a time), so it is usually not yet logical.`},
+  {c:`Piaget`, q:`Concrete operational stage — age and key feature?`, a:`7–11/12 years. Thinking "decenters," enabling logic — applied most effectively to concrete, real-world content.`},
+  {c:`Piaget`, q:`Formal operational stage — age and key feature?`, a:`12 years onward. Logic extends to abstract and hypothetical content.`},
+  {c:`Piaget`, q:`What is a "décalage"?`, a:`Within-stage unevenness — being advanced in one domain and behind in another, even though thinking is generally organized similarly across domains.`},
+  {c:`Piaget`, q:`What is "hierarchical integration"?`, a:`Simpler structures from one stage become integrated into the more complex organizational systems of the next stage.`},
+  {c:`Piaget`, q:`What does it mean that Piaget was a "constructivist"?`, a:`Children actively build knowledge using existing understanding plus new information — they don't passively receive it "as is," nor does it unfold preformed from within.`},
+  {c:`Piaget`, q:`What did "post-Piagetians" add?`, a:`Additional adult stages — the adolescent's abstract logic matures into a more relativistic kind of logic shaped by practical experience with real-world complexity.`},
+
+  // ===== LEARNING THEORIES =====
+  {c:`Learning Theories`, q:`What is the "behaviorist tradition"?`, a:`Learning theories (Watson → Skinner → Bandura) rooted in empiricism (Locke), holding that the mind starts as a blank slate the environment gradually imprints.`},
+  {c:`Learning Theories`, q:`What is classical (respondent) conditioning?`, a:`A neutral stimulus, repeatedly paired with one that triggers an automatic response, eventually comes to trigger that response on its own.`},
+  {c:`Learning Theories`, q:`Define respondent, conditioned stimulus, and conditioned response.`, a:`Respondent = an automatic, built-in response to a stimulus. Conditioned stimulus = a formerly neutral stimulus that now triggers a learned response. Conditioned response = that learned automatic response.`},
+  {c:`Learning Theories`, q:`What is operant conditioning?`, a:`Behavior changes based on its consequences: a behavior (operant) followed by reinforcement is maintained or increased.`},
+  {c:`Learning Theories`, q:`What is an "operant"?`, a:`Any behavior with the potential to "operate" on the environment and produce consequences.`},
+  {c:`Learning Theories`, q:`Positive vs. negative reinforcement?`, a:`Positive = ADDING something pleasurable after a behavior. Negative = REMOVING something aversive after a behavior. Both INCREASE the behavior.`},
+  {c:`Learning Theories`, q:`Common trap: Is negative reinforcement the same as punishment?`, a:`No. Negative reinforcement INCREASES behavior (by removing something aversive). Punishment decreases behavior.`},
+  {c:`Learning Theories`, q:`What do social learning theories add to conditioning?`, a:`Modeling (observational learning) — a learner acquires a behavior just by watching a model perform it.`},
+  {c:`Learning Theories`, q:`What factors affect whether an observer imitates a model?`, a:`Whether the observer expects a reward, whether the model seems nurturing or competent, and whether the observer believes they can meet their own performance standards.`},
+  {c:`Learning Theories`, q:`What is "generalization" in learning theory?`, a:`Extending a learned behavior to new, similar situations — but these extensions are narrow compared with the sweeping reorganizations stage theorists describe.`},
+  {c:`Learning Theories`, q:`What can learning theories NOT explain?`, a:`Stagelike developmental reorganizations. They explain change in discrete behaviors, not broad, sweeping shifts across many domains at once.`},
+
+  // ===== INFORMATION PROCESSING =====
+  {c:`Information Processing`, q:`What metaphor underlies information processing theories?`, a:`The computer — the mind attends to information, holds it in working memory, moves it to long-term storage, and uses strategies to organize it.`},
+  {c:`Information Processing`, q:`Are information processing changes stagelike?`, a:`No — they are mostly incremental and domain-specific. A new strategy in one task (e.g., addition) does not transfer to another (e.g., reading).`},
+  {c:`Information Processing`, q:`Whose work on children's strategies illustrates this?`, a:`Siegler's — e.g., a kindergartner's "counting from one" on fingers for addition, a strategy that plays no role in reading or spelling.`},
+
+  // ===== CORE ISSUES =====
+  {c:`Core Issues`, q:`Name the core "either-or" issues classic theories debated.`, a:`Qualitative vs. quantitative change; critical periods vs. anytime change; continuity vs. flux; active vs. passive person; nature vs. nurture; universal vs. culturally specific.`},
+  {c:`Core Issues`, q:`What is the contemporary answer to these core issues?`, a:`"Both." Modern multidimensional theories synthesize the extreme classic positions rather than choosing one side.`},
+
+  // ===== SYSTEMS THEORIES =====
+  {c:`Systems Theories`, q:`What do multidimensional (systems) theories emphasize?`, a:`Many interacting causal levels — physical/molecular, biological, psychological, social, cultural — connected by bidirectional (reciprocal) causation.`},
+  {c:`Systems Theories`, q:`What are "bidirectional processes"?`, a:`Reciprocal causation: each level both causes and is caused by the others. (E.g., testosterone → wrestling success → higher status → more testosterone.)`},
+  {c:`Systems Theories`, q:`What kinds of change do systems theories accommodate?`, a:`Both qualitative stagelike changes (great and small) AND continuous, even reversible changes such as learning and then forgetting.`},
+  {c:`Systems Theories`, q:`Explain Kagan's "vine in a forest" metaphor.`, a:`The vine (person) is propelled by its own inner processes, but its path and form are shaped by the forest (environment) — and the vine reciprocally changes the forest.`},
+  {c:`Systems Theories`, q:`What is the main ADVANTAGE of a multidimensional approach in practice?`, a:`It minimizes the "blinders" any single theory imposes and highlights many possible avenues of intervention.`},
+  {c:`Systems Theories`, q:`What are the DISADVANTAGES of a multidimensional approach?`, a:`The complexity of interacting factors can make it hard to know where to start, and some powerful influences (e.g., macrosystem cultural expectations) resist intervention.`},
+
+  // ===== BRONFENBRENNER =====
+  {c:`Bronfenbrenner`, q:`What are "proximal processes"?`, a:`Direct, reciprocal interactions between an active person and the immediate people, objects, and symbols around them — the "engines" of development.`},
+  {c:`Bronfenbrenner`, q:`What are "distal processes"?`, a:`More removed influences that MODIFY proximal processes — some inside the organism (e.g., genes), some outside the immediate setting (e.g., culture, institutions).`},
+  {c:`Bronfenbrenner`, q:`What are "demand characteristics"?`, a:`A person's behavioral tendencies that invite or discourage certain reactions from others (e.g., a shy, inhibited child may draw less attention and support).`},
+  {c:`Bronfenbrenner`, q:`Define the microsystem.`, a:`The settings a person interacts with directly — family, school, neighborhood, playground.`},
+  {c:`Bronfenbrenner`, q:`Define the mesosystem.`, a:`The full set of relationships AMONG microsystems (e.g., a parent–teacher conversation that changes how each treats the child).`},
+  {c:`Bronfenbrenner`, q:`Define the exosystem.`, a:`Settings the person doesn't directly interact with but that affect them anyway — a parent's workplace, a teacher's home life, family SES.`},
+  {c:`Bronfenbrenner`, q:`Define the macrosystem.`, a:`The customs, character, laws, and values of the larger culture that shape the inner systems.`},
+  {c:`Bronfenbrenner`, q:`How did Bronfenbrenner's theory evolve over time?`, a:`Earlier versions emphasized the nested ENVIRONMENTAL systems (micro → macro). Later "bioecological" versions gave equal attention to the nested INTERNAL levels (down to genes), with bidirectional effects at every level.`},
+
+  // ===== LIFE SPAN THEORY =====
+  {c:`Life Span Theory`, q:`What is the central claim of life span developmental theory?`, a:`The same developmental processes that turn infants into children continue throughout adulthood until death — adaptation never stops.`},
+  {c:`Life Span Theory`, q:`What did Baltes mean by the "architecture" of supports?`, a:`The interacting web of biological and cultural supports (protective factors) on which successful adaptation depends.`},
+  {c:`Life Span Theory`, q:`When do biological vs. cultural supports matter most (Baltes)?`, a:`Biological supports benefit adaptation more in childhood; cultural supports become more important AND more needed in older adulthood.`},
+
+  // ===== NATURE & NURTURE =====
+  {c:`Nature & Nurture`, q:`What is the modern answer to the nature/nurture question?`, a:`Interdependence, not addition — nature and nurture qualitatively modify each other to create unique outcomes.`},
+  {c:`Nature & Nurture`, q:`Give the key phrase capturing nature–nurture interdependence.`, a:`The same genes operate differently in different environments, and the same environment is experienced differently by people with different genetic characteristics.`},
+  {c:`Nature & Nurture`, q:`Define epigenetics.`, a:`The study of how experience changes gene expression — a key mechanism behind gene–environment interdependence.`},
+
+  // ===== CRITICAL PERIODS =====
+  {c:`Critical Periods`, q:`Define neuroplasticity.`, a:`Changes in the brain that result from practice or experience (neurons reorganize, producing learning and memory). Now understood to be lifelong.`},
+  {c:`Critical Periods`, q:`Define a critical (sensitive) period.`, a:`A time window during which a particular development must occur, or can most fully and easily form.`},
+  {c:`Critical Periods`, q:`What did Pinker conclude about language and critical periods?`, a:`Language can be learned at other times, but never as well or as effortlessly as during the critical period of roughly 1 to 5 years.`},
+  {c:`Critical Periods`, q:`How does the ASL example illustrate sensitive periods?`, a:`Deaf children denied early sign language who first learn ASL in late childhood or adolescence often never achieve the grammatical fluency of those who learned it as preschoolers.`},
+  {c:`Critical Periods`, q:`What is the modern view reconciling plasticity and critical periods?`, a:`Time-dependent, region-specific windows of opportunity for rapid neural reorganization exist ALONGSIDE continuing lifelong plasticity.`},
+
+  // ===== CULTURE =====
+  {c:`Culture`, q:`What do sociocultural theories (rooted in Vygotsky) argue about cognition?`, a:`That cognitive development can be qualitatively different in different cultures — not just the same process at different rates.`},
+  {c:`Culture`, q:`What does the Kpelle sorting example show?`, a:`Even Kpelle adults sort objects functionally rather than taxonomically because it is more meaningful to their lives — challenging Piaget's claim that taxonomic sorting marks logical maturity.`},
+  {c:`Culture`, q:`What does "WEIRD" stand for?`, a:`Western, Educated, Industrialized, Rich, and Democratic — describing the narrow sample most social science (including developmental research) has drawn on.`},
+  {c:`Culture`, q:`How is "racial group" now understood?`, a:`As a social construction based on superficial characteristics — genetic variation WITHIN groups equals or exceeds variation BETWEEN groups.`},
+  {c:`Culture`, q:`Define ethnicity.`, a:`Group membership based on shared ancestry, language, a common place of origin, and a sense of belonging to the group.`},
+  {c:`Culture`, q:`Define culture.`, a:`A community's shared values, rituals, psychological processes, behavioral norms, and practices.`},
+  {c:`Culture`, q:`Define socioeconomic status (SES).`, a:`Social standing or power, defined by characteristics of the adults in a household — educational background, income, and occupation.`},
+  {c:`Culture`, q:`Why must researchers "disaggregate" SES from race/ethnicity?`, a:`Because they get conflated: SES shapes how people perceive someone's race, and findings get attributed to one factor without checking the other. (Tudge's study showed both matter independently.)`},
+  {c:`Culture`, q:`Holistic vs. analytic cognition (East vs. West)?`, a:`Eastern/holistic = attend to context and relationships (linking cow + grass). Western/analytic = attend to central objects and categories (linking cow + chicken).`},
+  {c:`Culture`, q:`What did the Goh et al. fMRI study demonstrate?`, a:`Culture sculpts the brain over time: older East Asians showed a far greater reduction in object-processing than older Westerners — holistic processing had become their default mode.`},
+
+  // ===== APPLICATIONS & PREVENTION =====
+  {c:`Applications & Prevention`, q:`How can developmental knowledge serve as a "meta-theory"?`, a:`It helps clinicians clarify the mechanisms of growth, identify windows of receptivity to intervention, personalize care, and distinguish typical perturbations from atypical deviations.`},
+  {c:`Applications & Prevention`, q:`What categories do cultural-competence guidelines (APA/ANA/NASW) share?`, a:`Self-awareness, knowledge of other cultures, professional training, culturally sensitive research, skills for practice, and organizational / social-justice advocacy.`},
+  {c:`Applications & Prevention`, q:`What do the Multicultural and Social Justice Counseling Standards add?`, a:`Explicit attention to privilege, power, and oppression — and addressing counselor–client identities and statuses directly to reduce barriers.`},
+  {c:`Applications & Prevention`, q:`What is translational research?`, a:`Research "from bench to bedside" — the full spectrum of steps that move basic laboratory findings into real-world interventions and policy.`},
+  {c:`Applications & Prevention`, q:`What is "back translation"?`, a:`The recursive loop of applying research findings in real-world settings, making revisions based on evidence, and then reassessing.`},
+  {c:`Applications & Prevention`, q:`Name the four quadrants of Hamilton's translational research model.`, a:`(1) What's happening? (demography/epidemiology); (2) What makes youth tick? (basic research); (3) What works? (prevention/intervention/evaluation); (4) How do we use what works? (dissemination/scaling up).`},
+  {c:`Applications & Prevention`, q:`Primary vs. secondary vs. tertiary prevention?`, a:`Primary = promote wellness in the general population. Secondary = reduce incidence in high-risk groups or treat early cases. Tertiary = rehabilitate people with established disorders.`},
+  {c:`Applications & Prevention`, q:`Universal vs. selective vs. indicated prevention (IOM model)?`, a:`Universal = directed at the general population. Selective = targets those at epidemiological risk (e.g., low-birth-weight babies). Indicated = targets those showing subclinical symptoms.`},
+  {c:`Applications & Prevention`, q:`Why is peer review essential when choosing a program?`, a:`It ensures independent scientists — not just the program's developers — reviewed the evidence objectively. (Distinguish a research journal from an "opinion" journal.)`},
+  {c:`Applications & Prevention`, q:`Why aren't testimonials scientific evidence?`, a:`They can be compelling but omit the people who didn't benefit. There is no substitute for peer-reviewed, controlled evidence.`},
+  {c:`Applications & Prevention`, q:`Why is a comparison/control group important?`, a:`Without one, you can't tell whether the program's effects were caused by the intervention or by something else.`},
+  {c:`Applications & Prevention`, q:`Name two libraries of vetted evidence summaries.`, a:`The Cochrane Library (health care) and the Campbell Library (education, social work, and social science).`},
+
+  // ===== DEVELOPMENTAL PSYCHOPATHOLOGY =====
+  {c:`Dev. Psychopathology`, q:`What is developmental psychopathology?`, a:`An integrative field that views disordered behavior as an outgrowth of the same complex, lawful developmental processes that produce healthy behavior, taking a life span perspective.`},
+  {c:`Dev. Psychopathology`, q:`What does "normality fades into abnormality" mean?`, a:`Unlike psychiatry's tidy disorder/no-disorder split, whether behavior is adaptive or maladaptive depends on whether your time frame is immediate circumstances or long-term development.`},
+  {c:`Dev. Psychopathology`, q:`What are protective factors?`, a:`The individual's strengths PLUS the environment's supports — they help promote healthy outcomes.`},
+  {c:`Dev. Psychopathology`, q:`What are risk factors?`, a:`The individual's vulnerabilities PLUS the environmental stressors they experience — they can interfere with healthy development.`},
+  {c:`Dev. Psychopathology`, q:`What are "correlated constraints"?`, a:`Risks cluster and reinforce one another through redundancy — so altering just one risk may have little effect if the others maintain the status quo.`},
+  {c:`Dev. Psychopathology`, q:`What is a mediating variable?`, a:`The mechanism or link that explains HOW or WHY one variable leads to another. Example: poverty → pro-inflammatory immune profile → adult health problems.`},
+  {c:`Dev. Psychopathology`, q:`What is a moderating variable?`, a:`A variable that changes the STRENGTH of the relationship between two others (WHEN / for WHOM). Example: warm mothering weakens the poverty → inflammation link.`},
+  {c:`Dev. Psychopathology`, q:`Quick test: which answers "how/why" — mediator or moderator?`, a:`The mediator answers "how/why" (it's the mechanism). The moderator answers "when/for whom" (it changes the strength of an effect).`},
+  {c:`Dev. Psychopathology`, q:`What are endophenotypes?`, a:`Gene-traceable biobehavioral processes that act as intermediaries between genes and observable behavior — "bridges between molecules and behavior."`},
+  {c:`Dev. Psychopathology`, q:`Define the principle of multifinality.`, a:`A single developmental pathway can lead to MANY different outcomes (e.g., conduct-disordered children may later show antisocial personality, depression, OR substance abuse).`},
+  {c:`Dev. Psychopathology`, q:`Define the principle of equifinality.`, a:`MANY different developmental pathways can produce the SAME outcome (e.g., a biological route and a parenting route both leading to ADHD).`},
+  {c:`Dev. Psychopathology`, q:`Memory aid for multifinality vs. equifinality?`, a:`MULTI-finality = MANY final outcomes from one start. EQUI-finality = one EQUAL/same end reached from many starts.`},
+  {c:`Dev. Psychopathology`, q:`Why is perfect prediction impossible in development?`, a:`Too many interacting factors are involved. The rough guideline: the more risk factors and the fewer protective factors, the more likely adjustment problems are.`},
+  {c:`Dev. Psychopathology`, q:`What three practical clinical implications come from this field?`, a:`(1) Interventions must be developmentally appropriate; (2) periods of reorganization are sensitive windows when intervention is most effective (timing matters); (3) varied pathways argue for multiple means of intervention.`},
+  {c:`Dev. Psychopathology`, q:`What is prevention science?`, a:`The field that designs and tests prevention and intervention techniques to promote healthy development in at-risk groups.`},
+];
+
+// ---------- state ----------
+let currentCat = "All";
+let deck = CARDS.slice();
+let idx = 0;
+
+const els = {
+  cats: document.getElementById('cats'),
+  card: document.getElementById('card'),
+  front: document.getElementById('front'),
+  back: document.getElementById('back'),
+  tag: document.getElementById('tag'),
+  tagBack: document.getElementById('tag-back'),
+  counter: document.getElementById('counter'),
+  bar: document.getElementById('bar'),
+  total: document.getElementById('total-count'),
+};
+
+els.total.textContent = CARDS.length + " cards total";
+
+// build category list (preserve first-appearance order)
+const catOrder = [];
+CARDS.forEach(c => { if(!catOrder.includes(c.c)) catOrder.push(c.c); });
+const categories = ["All", ...catOrder];
+
+function renderCats(){
+  els.cats.innerHTML = "";
+  categories.forEach(cat => {
+    const b = document.createElement('button');
+    b.className = 'pill' + (cat === currentCat ? ' active' : '');
+    const n = cat === "All" ? CARDS.length : CARDS.filter(c => c.c === cat).length;
+    b.textContent = cat + " · " + n;
+    b.onclick = () => { setCat(cat); };
+    els.cats.appendChild(b);
+  });
+}
+
+function setCat(cat){
+  currentCat = cat;
+  deck = cat === "All" ? CARDS.slice() : CARDS.filter(c => c.c === cat);
+  idx = 0;
+  unflipInstant();
+  renderCats();
+  render();
+}
+
+function render(){
+  const card = deck[idx];
+  els.front.textContent = card.q;
+  els.back.textContent = card.a;
+  els.tag.textContent = card.c;
+  els.tagBack.textContent = card.c;
+  els.counter.textContent = "Card " + (idx+1) + " of " + deck.length;
+  els.bar.style.width = (((idx+1)/deck.length)*100) + "%";
+}
+
+function flip(){ els.card.classList.toggle('flipped'); }
+
+function unflipInstant(){
+  els.card.classList.add('no-anim');
+  els.card.classList.remove('flipped');
+  // force reflow then re-enable animation
+  void els.card.offsetWidth;
+  els.card.classList.remove('no-anim');
+}
+
+function next(){ idx = (idx+1) % deck.length; unflipInstant(); render(); }
+function prev(){ idx = (idx-1+deck.length) % deck.length; unflipInstant(); render(); }
+
+function shuffle(){
+  for(let i = deck.length-1; i>0; i--){
+    const j = Math.floor(Math.random()*(i+1));
+    [deck[i],deck[j]] = [deck[j],deck[i]];
+  }
+  idx = 0; unflipInstant(); render();
+}
+
+function reset(){ setCat(currentCat); }
+
+// ---------- wire up ----------
+els.card.onclick = flip;
+document.getElementById('flip').onclick = (e)=>{ e.stopPropagation(); flip(); };
+document.getElementById('next').onclick = next;
+document.getElementById('prev').onclick = prev;
+document.getElementById('shuffle').onclick = shuffle;
+document.getElementById('reset').onclick = reset;
+
+document.addEventListener('keydown', (e)=>{
+  if(e.key === 'ArrowRight'){ e.preventDefault(); next(); }
+  else if(e.key === 'ArrowLeft'){ e.preventDefault(); prev(); }
+  else if(e.key === ' ' || e.key === 'Enter'){ e.preventDefault(); flip(); }
+});
+
+renderCats();
+render();
+</script>
+</body>
+</html>
