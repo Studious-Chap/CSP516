@@ -1,0 +1,662 @@
+<!--
+  Third Sunday Breakfast & Walk — RSVP tracker
+  El Dorado East Regional Park, Long Beach
+  Shareable HTML artifact with persistent shared storage.
+-->
+<meta name="viewport" content="width=device-width, initial-scale=1" />
+<style>
+  @import url('https://fonts.googleapis.com/css2?family=Fraunces:opsz,wght@9..144,400;9..144,500;9..144,600;9..144,700&family=Nunito+Sans:opsz,wght@6..12,400;6..12,600;6..12,700&display=swap');
+
+  :root {
+    --paper: #EDF1E7;
+    --paper-2: #F6F8F0;
+    --ink: #1C2A20;
+    --ink-soft: #4A5A4E;
+    --pine: #2F5D3A;
+    --pine-deep: #1E3A28;
+    --yolk: #F2A93B;
+    --yolk-deep: #D98A1E;
+    --lake: #5B8C8E;
+    --line: #CBD6C4;
+    --white: #FFFFFF;
+    --shadow: 0 1px 2px rgba(28,42,32,.06), 0 8px 24px rgba(28,42,32,.08);
+  }
+
+  * { box-sizing: border-box; }
+
+  body {
+    margin: 0;
+    background: var(--paper);
+    color: var(--ink);
+    font-family: 'Nunito Sans', system-ui, sans-serif;
+    font-size: 16px;
+    line-height: 1.5;
+    -webkit-font-smoothing: antialiased;
+  }
+
+  .wrap {
+    max-width: 620px;
+    margin: 0 auto;
+    padding: 20px 18px 64px;
+  }
+
+  .eyebrow {
+    font-family: 'Nunito Sans', sans-serif;
+    font-weight: 700;
+    font-size: 12px;
+    letter-spacing: .16em;
+    text-transform: uppercase;
+    color: var(--pine);
+  }
+
+  /* ---- Hero ---- */
+  .hero {
+    position: relative;
+    background:
+      radial-gradient(120% 90% at 50% -10%, rgba(242,169,59,.28), transparent 55%),
+      linear-gradient(180deg, var(--paper-2), var(--white));
+    border: 1px solid var(--line);
+    border-radius: 22px;
+    padding: 30px 24px 26px;
+    box-shadow: var(--shadow);
+    overflow: hidden;
+  }
+  .sun {
+    position: absolute; top: -46px; left: 50%; transform: translateX(-50%);
+    width: 120px; height: 120px; border-radius: 50%;
+    background: radial-gradient(circle at 50% 60%, var(--yolk), var(--yolk-deep));
+    opacity: .9;
+    box-shadow: 0 0 60px 18px rgba(242,169,59,.35);
+  }
+  .hero h1 {
+    font-family: 'Fraunces', serif;
+    font-weight: 600;
+    font-size: clamp(30px, 8vw, 42px);
+    line-height: 1.02;
+    letter-spacing: -.01em;
+    margin: 30px 0 6px;
+    color: var(--pine-deep);
+  }
+  .hero .sub {
+    font-family: 'Fraunces', serif;
+    font-style: italic;
+    font-weight: 400;
+    font-size: 18px;
+    color: var(--ink-soft);
+    margin: 0 0 16px;
+  }
+  .rhythm {
+    display: inline-flex; align-items: center; gap: 8px;
+    background: var(--pine-deep); color: var(--paper-2);
+    padding: 8px 14px; border-radius: 999px;
+    font-size: 13px; font-weight: 700; letter-spacing: .02em;
+  }
+  .rhythm .dot { width: 7px; height: 7px; border-radius: 50%; background: var(--yolk); }
+
+  /* ---- Count band ---- */
+  .tally {
+    margin-top: 14px;
+    display: grid; grid-template-columns: auto 1fr; gap: 16px; align-items: center;
+  }
+  .tally .num {
+    font-family: 'Fraunces', serif;
+    font-weight: 700;
+    font-size: 54px; line-height: 1;
+    color: var(--yolk-deep);
+    min-width: 64px; text-align: center;
+  }
+  .tally .num-label { display:block; font-family:'Nunito Sans'; font-size:11px; font-weight:700; letter-spacing:.14em; text-transform:uppercase; color: var(--ink-soft); margin-top:4px; }
+  .tally .caption { font-size: 14px; color: var(--ink-soft); }
+  .tally .caption b { color: var(--ink); font-weight: 700; }
+
+  /* ---- Cards ---- */
+  .card {
+    background: var(--white);
+    border: 1px solid var(--line);
+    border-radius: 18px;
+    padding: 22px 20px;
+    margin-top: 18px;
+    box-shadow: var(--shadow);
+  }
+  .card h2 {
+    font-family: 'Fraunces', serif;
+    font-weight: 600;
+    font-size: 21px;
+    margin: 0 0 14px;
+    color: var(--pine-deep);
+  }
+
+  .plan { list-style: none; margin: 0; padding: 0; }
+  .plan li { display: flex; gap: 12px; padding: 9px 0; border-bottom: 1px dashed var(--line); }
+  .plan li:last-child { border-bottom: 0; }
+  .plan .ic { font-size: 20px; width: 26px; text-align: center; flex: none; }
+  .plan .t { font-weight: 700; }
+  .plan .d { color: var(--ink-soft); font-size: 14.5px; }
+
+  .note {
+    margin-top: 14px; padding: 12px 14px;
+    background: rgba(91,140,142,.10);
+    border-left: 3px solid var(--lake);
+    border-radius: 8px;
+    font-size: 14px; color: var(--ink-soft);
+  }
+  .note b { color: var(--ink); }
+
+  /* ---- Form ---- */
+  label { display: block; font-size: 13px; font-weight: 700; letter-spacing: .02em; margin: 14px 0 6px; color: var(--ink); }
+  input[type=text], select, textarea {
+    width: 100%;
+    font-family: inherit; font-size: 16px; color: var(--ink);
+    background: var(--paper-2);
+    border: 1.5px solid var(--line);
+    border-radius: 11px;
+    padding: 12px 13px;
+  }
+  input[type=text]:focus, select:focus, textarea:focus {
+    outline: none; border-color: var(--pine);
+    box-shadow: 0 0 0 3px rgba(47,93,58,.15);
+  }
+  textarea { resize: vertical; min-height: 52px; }
+
+  .counts { display: grid; grid-template-columns: 1fr 1fr; gap: 14px; }
+  .stepper { display: flex; align-items: center; gap: 0; margin-top: 6px; }
+  .stepper button {
+    width: 44px; height: 46px; flex: none;
+    font-size: 22px; font-family: inherit; font-weight: 700;
+    border: 1.5px solid var(--line); background: var(--paper-2); color: var(--pine-deep);
+    cursor: pointer;
+  }
+  .stepper button:hover { background: #E7EDDD; }
+  .stepper button:first-child { border-radius: 11px 0 0 11px; }
+  .stepper button:last-child { border-radius: 0 11px 11px 0; }
+  .stepper .val {
+    flex: 1; height: 46px; display: flex; align-items: center; justify-content: center;
+    border-top: 1.5px solid var(--line); border-bottom: 1.5px solid var(--line);
+    font-family: 'Fraunces', serif; font-weight: 600; font-size: 20px; background: var(--white);
+  }
+
+  .submit {
+    width: 100%; margin-top: 20px;
+    font-family: inherit; font-size: 16px; font-weight: 800; letter-spacing: .02em;
+    color: var(--paper-2); background: var(--pine);
+    border: none; border-radius: 12px; padding: 15px;
+    cursor: pointer; transition: transform .05s ease, background .2s ease;
+  }
+  .submit:hover { background: var(--pine-deep); }
+  .submit:active { transform: translateY(1px); }
+  .submit:disabled { opacity: .55; cursor: default; }
+
+  .formmsg { margin-top: 12px; font-size: 14px; font-weight: 700; text-align: center; min-height: 20px; }
+  .formmsg.ok { color: var(--pine); }
+  .formmsg.err { color: #B4432B; }
+
+  /* ---- Roster ---- */
+  .datehead {
+    display: flex; align-items: baseline; justify-content: space-between; gap: 10px;
+    margin: 20px 0 8px; padding-bottom: 6px; border-bottom: 2px solid var(--pine-deep);
+  }
+  .datehead .dh-date { font-family: 'Fraunces', serif; font-weight: 600; font-size: 18px; color: var(--pine-deep); }
+  .datehead .dh-count { font-size: 13px; font-weight: 700; color: var(--yolk-deep); white-space: nowrap; }
+
+  .guest { display: flex; align-items: flex-start; gap: 10px; padding: 10px 0; border-bottom: 1px dashed var(--line); }
+  .guest:last-child { border-bottom: 0; }
+  .guest .g-main { flex: 1; }
+  .guest .g-name { font-weight: 700; }
+  .guest .g-meta { font-size: 13.5px; color: var(--ink-soft); }
+  .guest .g-bring { font-size: 13.5px; color: var(--lake); font-style: italic; }
+  .guest .g-rm {
+    flex: none; font-size: 12px; font-weight: 700; color: var(--ink-soft);
+    background: none; border: none; cursor: pointer; padding: 4px; text-decoration: underline;
+  }
+  .guest .g-rm:hover { color: #B4432B; }
+  .empty { color: var(--ink-soft); font-style: italic; font-size: 14.5px; padding: 8px 0; }
+
+  .foot { text-align: center; margin-top: 26px; font-size: 12.5px; color: var(--ink-soft); }
+  .foot button { background: none; border: none; color: var(--ink-soft); text-decoration: underline; cursor: pointer; font: inherit; }
+
+  .loading { text-align: center; color: var(--ink-soft); padding: 20px; font-style: italic; }
+
+  .subnote { font-size: 12.5px; color: var(--ink-soft); margin-top: 8px; line-height: 1.45; }
+
+  .factgrid { margin-top: 2px; }
+  .fact { display: grid; grid-template-columns: 108px 1fr; gap: 12px; padding: 11px 0; border-bottom: 1px dashed var(--line); align-items: start; }
+  .fact:last-child { border-bottom: 0; }
+  .fact .k { font-size: 11.5px; font-weight: 800; letter-spacing: .07em; text-transform: uppercase; color: var(--pine); padding-top: 3px; }
+  .fact .v { font-size: 15px; color: var(--ink); }
+  .fact .v .sub { display: block; font-size: 13px; color: var(--ink-soft); margin-top: 3px; }
+
+  .pricetable { margin-top: 6px; border: 1px solid var(--line); border-radius: 12px; overflow: hidden; }
+  .pricerow { display: flex; justify-content: space-between; align-items: center; padding: 10px 14px; font-size: 14.5px; }
+  .pricerow:nth-child(even) { background: var(--paper-2); }
+  .pricerow.hi { background: rgba(242,169,59,.18); font-weight: 800; color: var(--ink); }
+  .pricerow .d { color: var(--ink-soft); }
+  .pricerow.hi .d { color: var(--ink); }
+  .pricerow .p { font-variant-numeric: tabular-nums; font-weight: 700; color: var(--pine-deep); }
+
+  .callout { margin-top: 13px; padding: 13px 15px; background: rgba(47,93,58,.07); border-left: 3px solid var(--pine); border-radius: 8px; font-size: 13.5px; color: var(--ink); line-height: 1.5; }
+  .callout b { color: var(--pine-deep); }
+
+  .taglist { display: flex; flex-wrap: wrap; gap: 7px; margin-top: 9px; }
+  .tag { font-size: 12.5px; font-weight: 700; color: var(--pine-deep); background: var(--paper); border: 1px solid var(--line); border-radius: 999px; padding: 5px 11px; }
+
+  .g-contact { font-size: 12.5px; color: var(--ink-soft); margin-top: 4px; word-break: break-word; }
+  .g-contact span { filter: grayscale(.2); }
+
+  .dh-closed { font-family: 'Nunito Sans', sans-serif; font-size: 10.5px; font-weight: 800; letter-spacing: .06em; text-transform: uppercase; color: var(--yolk-deep); background: rgba(242,169,59,.18); padding: 2px 8px; border-radius: 999px; margin-left: 8px; white-space: nowrap; vertical-align: middle; }
+
+  .deadline { display: flex; gap: 12px; align-items: flex-start; background: rgba(242,169,59,.16); border: 1.5px solid var(--yolk); border-radius: 12px; padding: 14px 16px; margin-bottom: 20px; }
+  .deadline .di { font-size: 22px; line-height: 1.25; flex: none; }
+  .deadline .dt { font-size: 14.5px; color: var(--ink); line-height: 1.5; }
+  .deadline .dt b { color: var(--yolk-deep); font-weight: 800; }
+</style>
+
+<div class="wrap">
+
+  <div class="hero">
+    <div class="sun"></div>
+    <div class="eyebrow">One Sunday a Month · By the Lake</div>
+    <h1>Breakfast &amp; a Walk</h1>
+    <p class="sub">A monthly morning to keep the family close.</p>
+    <span class="rhythm"><span class="dot"></span> El Dorado East Regional Park · Long Beach</span>
+
+    <div class="tally">
+      <div>
+        <div class="num" id="grandTotal">0</div>
+        <span class="num-label">Coming</span>
+      </div>
+      <div class="caption" id="tallyCaption">Be the first to RSVP below.</div>
+    </div>
+  </div>
+
+  <div class="card">
+    <h2>Why we're doing this</h2>
+    <p style="margin:0;font-size:15px;line-height:1.6;color:var(--ink)">
+      It's easy to let months slide by without really seeing each other. So the plan is simple: one morning a month, we meet up, eat, and take a walk. It's just family for now, and later on I'd like to open it up to friends too. The kids get to grow up knowing their cousins, and the rest of us actually get to catch up.
+    </p>
+    <div class="callout" style="border-left-color:var(--yolk);background:rgba(242,169,59,.10)">
+      Come when you can. If you miss a month, no worries, we'll be back the next one.
+    </div>
+  </div>
+
+  <div class="card">
+    <h2>Health &amp; keeping each other safe</h2>
+    <p style="margin:0 0 12px;font-size:15px;line-height:1.6;color:var(--ink)">
+      We'll have babies, toddlers, and grandparents at the table, and some of them can't fight much off. Please keep that in mind so this stays safe for everyone.
+    </p>
+    <div class="factgrid">
+      <div class="fact"><div class="k">Feeling sick?</div><div class="v">If you're sick or feel something coming on, stay home and catch us next month. Better to miss one breakfast than pass something around a table full of little kids.</div></div>
+      <div class="fact"><div class="k">Vaccines</div><div class="v">Think about your vaccination status before you come. It's not only about you. The infants and older folks sitting next to you are the ones most at risk.</div></div>
+      <div class="fact"><div class="k">The ask</div><div class="v">Everyone who comes needs to be current on the CDC's recommended vaccine schedule for their age. If you're not, please sit out until you are. This part isn't flexible. We've got kids here too young to be fully protected yet, and I won't put them at risk.</div></div>
+    </div>
+    <div class="subnote">I'd rather say this plainly here than have it come up at the park. It comes down to keeping the little ones safe.</div>
+  </div>
+
+  <div class="card">
+    <h2>How the morning goes</h2>
+    <ul class="plan">
+      <li><span class="ic">🍳</span><div><span class="t">8:30 – 10:00 · Breakfast</span><div class="d">Scrambled eggs, chorizo, fruit, and coffee at our tables. We've got the food covered, so just show up hungry anytime after 8:30. No need to be on time.</div></div></li>
+      <li><span class="ic">🌳</span><div><span class="t">10:00 – 11:00 · Lake walk</span><div class="d">An easy, flat loop around the lake at a slow pace, fine for strollers. Do all of it or part of it. We start and end at the tables.</div></div></li>
+      <li><span class="ic">🛝</span><div><span class="t">11:00 · Playground &amp; goodbyes</span><div class="d">Back at the tables. Kids play, the adults finish their coffee, and people head out whenever they're ready.</div></div></li>
+    </ul>
+    <div class="note">
+      The whole thing runs about two and a half hours, but you don't have to stay for all of it. Come and go as your day allows.
+    </div>
+  </div>
+
+  <div class="card">
+    <h2>The essentials</h2>
+    <div class="factgrid">
+      <div class="fact"><div class="k">Where</div><div class="v">El Dorado East Regional Park<span class="sub">7550 E. Spring Street, Long Beach, CA 90815. We meet by the lakes in Area II. Look for our tables and the food.</span></div></div>
+      <div class="fact"><div class="k">When</div><div class="v">One Sunday a month, 8:30–11:00 AM<span class="sub">First one is Sunday, July 19, 2026. After that it's the 2nd Sunday of each month, except May, which moves to the 3rd Sunday so it doesn't land on Mother's Day.</span></div></div>
+      <div class="fact"><div class="k">We bring</div><div class="v">Eggs, chorizo, fruit, and coffee, plus plates, utensils, napkins, and the tables. You don't need to bring anything.</div></div>
+      <div class="fact"><div class="k">You bring</div><div class="v">Yourselves and an appetite.<div class="taglist"><span class="tag">Light jacket</span><span class="tag">Sunscreen</span><span class="tag">Water</span><span class="tag">Stroller</span><span class="tag">Camp chair (optional)</span></div></div></div>
+      <div class="fact"><div class="k">Park hours</div><div class="v">Opens 7 AM daily. Closing time changes by season:<span class="sub">March through October: 7 AM to 8 PM. November through February: 7 AM to 5 PM. The last car is let in 30 minutes before closing. Our morning falls well inside those hours either way.</span></div></div>
+    </div>
+  </div>
+
+  <div class="card">
+    <h2>Parking &amp; passes</h2>
+    <p style="margin:0 0 6px;font-size:14.5px;color:var(--ink-soft)">There's a vehicle fee at the entrance booth, paid per car. Our Sundays are the weekend rate:</p>
+    <div class="pricetable">
+      <div class="pricerow hi"><span class="d">Our Sunday meetups (weekend)</span><span class="p">$8</span></div>
+      <div class="pricerow"><span class="d">Monday–Thursday</span><span class="p">$6</span></div>
+      <div class="pricerow"><span class="d">Friday</span><span class="p">$7</span></div>
+      <div class="pricerow"><span class="d">Holidays</span><span class="p">$9</span></div>
+      <div class="pricerow"><span class="d">Walk or bike in</span><span class="p">Free</span></div>
+    </div>
+    <div class="callout">
+      The booth only takes cards: debit, credit, prepaid, or phone pay (Apple/Google Pay). No cash. If cash is all you've got, buy a day ticket at the Park Office just past the booth, or at the Nature Center. Walk or bike in and you don't pay at all.
+    </div>
+
+    <h2 style="margin-top:22px">The annual pass</h2>
+    <p style="margin:0 0 8px;font-size:14.5px;color:var(--ink-soft)">If you're planning to come most months, a yearly pass is worth it. At $8 a visit, it pays for itself in about nine Sundays.</p>
+    <div class="pricetable">
+      <div class="pricerow"><span class="d">Regular</span><span class="p">$70</span></div>
+      <div class="pricerow"><span class="d">Senior (50+)</span><span class="p">$43</span></div>
+      <div class="pricerow"><span class="d">Disabled</span><span class="p">$43</span></div>
+      <div class="pricerow"><span class="d">Veterans</span><span class="p">$43</span></div>
+    </div>
+    <div class="callout">
+      Buy one at the <b>El Dorado Nature Center Visitors Center</b> (7550 E Spring St), open Tuesday through Sunday, 8:30 AM to 4 PM. They take cash, check, or card. It's one pass per car, kept on the dashboard, so if two families drive in separately, each car needs its own. When you buy it, they knock that day's entrance fee off the price.
+    </div>
+  </div>
+
+  <div class="card">
+    <h2>Good to know</h2>
+    <div class="factgrid">
+      <div class="fact"><div class="k">Easy for all</div><div class="v">The paths are flat and paved, so strollers and wheelchairs are no problem. Works for grandparents and little kids alike.</div></div>
+      <div class="fact"><div class="k">Restrooms</div><div class="v">There are public restrooms near the picnic areas, so no long walk when someone needs to go.</div></div>
+      <div class="fact"><div class="k">For the kids</div><div class="v">There's a playground right by the tables, plus ducks and the lake to watch. The park also has paddleboats and bike rentals if anyone wants to stick around.</div></div>
+      <div class="fact"><div class="k">Weather</div><div class="v">Mornings near the coast can start cool and gray before it warms up, so bring a layer.</div></div>
+      <div class="fact"><div class="k">Rain</div><div class="v">If it's raining, we won't meet that day. Keep an eye on the forecast, and I'll send word if we need to call one off.</div></div>
+      <div class="fact"><div class="k">Dogs</div><div class="v">Leashed dogs are fine on the paths, and there's a dog park nearby if yours needs to run around.</div></div>
+    </div>
+  </div>
+
+  <div class="card">
+    <h2>Who's coming?</h2>
+
+    <div class="deadline">
+      <span class="di">⏳</span>
+      <span class="dt"><b>RSVPs close 48 hours before each meetup</b> so there's time to shop for food. Once a date is inside that window, it drops off the list below.</span>
+    </div>
+
+    <label for="fName">Your name</label>
+    <input type="text" id="fName" placeholder="e.g. Chris &amp; family" autocomplete="name" />
+
+    <label for="fDate">Which Sunday?</label>
+    <select id="fDate"></select>
+
+    <div class="counts">
+      <div>
+        <label>Adults</label>
+        <div class="stepper" data-target="adults">
+          <button type="button" data-step="-1" aria-label="one fewer adult">–</button>
+          <div class="val" id="adultsVal">1</div>
+          <button type="button" data-step="1" aria-label="one more adult">+</button>
+        </div>
+      </div>
+      <div>
+        <label>Kids</label>
+        <div class="stepper" data-target="kids">
+          <button type="button" data-step="-1" aria-label="one fewer kid">–</button>
+          <div class="val" id="kidsVal">0</div>
+          <button type="button" data-step="1" aria-label="one more kid">+</button>
+        </div>
+      </div>
+    </div>
+
+    <label for="fPhone">Phone <span style="font-weight:400;color:var(--ink-soft)">(optional)</span></label>
+    <input type="tel" id="fPhone" placeholder="(555) 123-4567" autocomplete="tel" inputmode="tel" />
+
+    <label for="fEmail">Email <span style="font-weight:400;color:var(--ink-soft)">(optional)</span></label>
+    <input type="text" id="fEmail" placeholder="you@email.com" autocomplete="email" inputmode="email" />
+
+    <div class="subnote">📇 Add a phone or email if you want reminders. Heads up: whatever you put here shows up for everyone who opens this page, so skip it if you'd rather not share.</div>
+
+    <label for="fBring" style="margin-top:16px">Bringing anything? <span style="font-weight:400;color:var(--ink-soft)">(optional)</span></label>
+    <textarea id="fBring" placeholder="Fruit, extra coffee, a folding table…"></textarea>
+
+    <button class="submit" id="submitBtn">Save my RSVP</button>
+    <div class="formmsg" id="formMsg"></div>
+  </div>
+
+  <div class="card">
+    <h2>The list so far</h2>
+    <div id="roster"><div class="loading">Loading the roster…</div></div>
+  </div>
+
+  <div class="foot">
+    Everything you enter, phone and email included, is visible to anyone who opens this page. That's what makes the headcount work. Leave the contact fields blank if you'd rather keep them private.
+    <br /><button id="resetBtn">Clear all RSVPs</button>
+  </div>
+
+</div>
+
+<script>
+(function () {
+  var state = { adults: 1, kids: 0 };
+  var mySubmissions = {}; // ids created this session (for easy self-removal)
+
+  // ----- meetup Sundays: 2nd Sunday default; May uses 3rd (clears Mother's Day) -----
+  function nthSunday(y, m, n) {
+    var first = new Date(y, m, 1);
+    var firstSun = 1 + ((7 - first.getDay()) % 7);
+    return new Date(y, m, firstSun + 7 * (n - 1));
+  }
+  function meetupSunday(y, m) {
+    var n = (m === 4) ? 3 : 2;   // month index 4 = May
+    return nthSunday(y, m, n);
+  }
+  var KICKOFF = new Date(2026, 6, 19);  // one-time kickoff: Sun Jul 19, 2026
+  KICKOFF.setHours(0, 0, 0, 0);
+  function upcomingThirdSundays(n) {
+    var out = [], now = new Date();
+    now.setHours(0, 0, 0, 0);
+    if (KICKOFF >= now) out.push(KICKOFF);          // pin the kickoff while it's still ahead
+    var y = now.getFullYear(), m = now.getMonth();
+    while (out.length < n) {
+      var d = meetupSunday(y, m);
+      d.setHours(0, 0, 0, 0);
+      if (d >= now && d > KICKOFF) out.push(d);      // skip the pre-kickoff 2nd Sunday, avoid dupes
+      m++; if (m > 11) { m = 0; y++; }
+    }
+    return out;
+  }
+  function ordinal(n) {
+    var s = ['th', 'st', 'nd', 'rd'], v = n % 100;
+    return n + (s[(v - 20) % 10] || s[v] || s[0]);
+  }
+  function fmtDate(d) {
+    var wd = d.toLocaleDateString('en-US', { weekday: 'long' });
+    var mo = d.toLocaleDateString('en-US', { month: 'long' });
+    return wd + ', ' + mo + ' ' + ordinal(d.getDate()) + ', ' + d.getFullYear();
+  }
+  function keyOf(d) { return d.toISOString().slice(0,10); }
+
+  // ----- RSVPs close 48 hours before the 8:30 AM start, so there's time to shop -----
+  var CUTOFF_HOURS = 48;
+  function eventStart(d) { return new Date(d.getFullYear(), d.getMonth(), d.getDate(), 8, 30, 0, 0); }
+  function isOpen(d) { return Date.now() < eventStart(d).getTime() - CUTOFF_HOURS * 3600 * 1000; }
+
+  var sundays = upcomingThirdSundays(18);
+  var dateSelect = document.getElementById('fDate');
+  var firstOpenMarked = false, openCount = 0;
+  sundays.forEach(function (d) {
+    if (!isOpen(d)) return;                 // hide dates inside the 48-hour window
+    openCount++;
+    var o = document.createElement('option');
+    o.value = keyOf(d);
+    o.textContent = fmtDate(d) + (firstOpenMarked ? '' : '  (next up)');
+    firstOpenMarked = true;
+    dateSelect.appendChild(o);
+  });
+  if (openCount === 0) {
+    var od = document.createElement('option');
+    od.value = ''; od.textContent = 'No open dates right now'; od.disabled = true;
+    dateSelect.appendChild(od);
+  }
+
+  // ----- steppers -----
+  document.querySelectorAll('.stepper').forEach(function (s) {
+    var target = s.getAttribute('data-target');
+    s.querySelectorAll('button').forEach(function (b) {
+      b.addEventListener('click', function () {
+        var step = parseInt(b.getAttribute('data-step'), 10);
+        var min = target === 'adults' ? 1 : 0;
+        state[target] = Math.max(min, Math.min(30, state[target] + step));
+        document.getElementById(target + 'Val').textContent = state[target];
+      });
+    });
+  });
+
+  // ----- storage helpers -----
+  async function loadAll() {
+    try {
+      var res = await window.storage.list('rsvp:', true);
+      var keys = (res && res.keys) ? res.keys : [];
+      var items = [];
+      for (var i = 0; i < keys.length; i++) {
+        try {
+          var r = await window.storage.get(keys[i], true);
+          if (r && r.value) { var obj = JSON.parse(r.value); obj._key = keys[i]; items.push(obj); }
+        } catch (e) { /* skip missing */ }
+      }
+      return items;
+    } catch (e) {
+      return null; // signal failure
+    }
+  }
+
+  function render(items) {
+    var roster = document.getElementById('roster');
+    var grand = 0;
+    var byDate = {};
+    sundays.forEach(function (d) { byDate[keyOf(d)] = []; });
+
+    (items || []).forEach(function (it) {
+      grand += (it.adults || 0) + (it.kids || 0);
+      if (!byDate[it.date]) byDate[it.date] = [];
+      byDate[it.date].push(it);
+    });
+
+    document.getElementById('grandTotal').textContent = grand;
+    var households = (items || []).length;
+    var cap = document.getElementById('tallyCaption');
+    if (grand === 0) { cap.innerHTML = 'Be the first to RSVP below.'; }
+    else {
+      var next = keyOf(sundays[0]);
+      var nextHeads = (byDate[next] || []).reduce(function (s, x){ return s + x.adults + x.kids; }, 0);
+      cap.innerHTML = '<b>' + grand + '</b> across <b>' + households + '</b> ' +
+        (households === 1 ? 'household' : 'households') + '. ' +
+        '<b>' + nextHeads + '</b> for the next one.';
+    }
+
+    var html = '';
+    sundays.forEach(function (d) {
+      var k = keyOf(d);
+      var list = byDate[k] || [];
+      var heads = list.reduce(function (s, x){ return s + x.adults + x.kids; }, 0);
+      var open = isOpen(d);
+      html += '<div class="datehead"><span class="dh-date">' + fmtDate(d) +
+              (open ? '' : ' <span class="dh-closed">RSVPs closed</span>') + '</span>' +
+              '<span class="dh-count">' + heads + (heads === 1 ? ' person' : ' people') + '</span></div>';
+      if (!list.length) {
+        html += '<div class="empty">' + (open ? 'No one yet — you could be first.' : 'No RSVPs for this one.') + '</div>';
+      } else {
+        list.forEach(function (it) {
+          var meta = it.adults + (it.adults === 1 ? ' adult' : ' adults');
+          if (it.kids > 0) meta += ', ' + it.kids + (it.kids === 1 ? ' kid' : ' kids');
+          var contact = '';
+          if (it.phone) contact += '<span>📞</span> ' + esc(it.phone);
+          if (it.email) contact += (contact ? '&nbsp; · &nbsp;' : '') + '<span>✉️</span> ' + esc(it.email);
+          html += '<div class="guest"><div class="g-main">' +
+            '<div class="g-name">' + esc(it.name) + '</div>' +
+            '<div class="g-meta">' + meta + '</div>' +
+            (contact ? '<div class="g-contact">' + contact + '</div>' : '') +
+            (it.bring ? '<div class="g-bring">bringing ' + esc(it.bring) + '</div>' : '') +
+            '</div>' +
+            '<button class="g-rm" data-key="' + it._key + '">remove</button></div>';
+        });
+      }
+    });
+    roster.innerHTML = html;
+
+    roster.querySelectorAll('.g-rm').forEach(function (btn) {
+      btn.addEventListener('click', async function () {
+        if (!confirm('Remove this RSVP?')) return;
+        try {
+          await window.storage.delete(btn.getAttribute('data-key'), true);
+          refresh();
+        } catch (e) { alert('Could not remove that just now — try again.'); }
+      });
+    });
+  }
+
+  function esc(s) {
+    return String(s == null ? '' : s).replace(/[&<>"]/g, function (c) {
+      return { '&':'&amp;','<':'&lt;','>':'&gt;','"':'&quot;' }[c];
+    });
+  }
+
+  async function refresh() {
+    var items = await loadAll();
+    if (items === null) {
+      document.getElementById('roster').innerHTML =
+        '<div class="empty">Couldn\'t load the roster right now. Refresh the page to try again.</div>';
+      return;
+    }
+    render(items);
+  }
+
+  // ----- submit -----
+  var submitBtn = document.getElementById('submitBtn');
+  submitBtn.addEventListener('click', async function () {
+    var name = document.getElementById('fName').value.trim();
+    var date = document.getElementById('fDate').value;
+    var phone = document.getElementById('fPhone').value.trim();
+    var email = document.getElementById('fEmail').value.trim();
+    var bring = document.getElementById('fBring').value.trim();
+    var msg = document.getElementById('formMsg');
+
+    if (!name) {
+      msg.className = 'formmsg err'; msg.textContent = 'Add your name first.';
+      return;
+    }
+    if (email && !/^[^\s@]+@[^\s@]+\.[^\s@]+$/.test(email)) {
+      msg.className = 'formmsg err'; msg.textContent = 'That email looks off — check it, or leave it blank.';
+      return;
+    }
+    if (!date) {
+      msg.className = 'formmsg err'; msg.textContent = 'Pick a date first.';
+      return;
+    }
+    var picked = sundays.filter(function (d) { return keyOf(d) === date; })[0];
+    if (picked && !isOpen(picked)) {
+      msg.className = 'formmsg err';
+      msg.textContent = 'RSVPs for that date just closed (the 48-hour cutoff). Please pick the next open date.';
+      return;
+    }
+    submitBtn.disabled = true;
+    msg.className = 'formmsg'; msg.textContent = 'Saving…';
+
+    var id = 'rsvp:' + Date.now() + '-' + Math.random().toString(36).slice(2, 8);
+    var record = { name: name, date: date, adults: state.adults, kids: state.kids, phone: phone, email: email, bring: bring };
+
+    try {
+      var r = await window.storage.set(id, JSON.stringify(record), true);
+      if (!r) throw new Error('no result');
+      mySubmissions[id] = true;
+      msg.className = 'formmsg ok'; msg.textContent = 'You\'re on the list. See you there!';
+      document.getElementById('fName').value = '';
+      document.getElementById('fPhone').value = '';
+      document.getElementById('fEmail').value = '';
+      document.getElementById('fBring').value = '';
+      state.adults = 1; state.kids = 0;
+      document.getElementById('adultsVal').textContent = '1';
+      document.getElementById('kidsVal').textContent = '0';
+      await refresh();
+    } catch (e) {
+      msg.className = 'formmsg err'; msg.textContent = 'That didn\'t save — check your connection and try again.';
+    } finally {
+      submitBtn.disabled = false;
+      setTimeout(function () { if (msg.classList.contains('ok')) { msg.textContent = ''; msg.className = 'formmsg'; } }, 4000);
+    }
+  });
+
+  // ----- reset -----
+  document.getElementById('resetBtn').addEventListener('click', async function () {
+    if (!confirm('Clear every RSVP for all dates? This can\'t be undone.')) return;
+    try {
+      var res = await window.storage.list('rsvp:', true);
+      var keys = (res && res.keys) ? res.keys : [];
+      for (var i = 0; i < keys.length; i++) {
+        try { await window.storage.delete(keys[i], true); } catch (e) {}
+      }
+      refresh();
+    } catch (e) { alert('Could not clear right now — try again.'); }
+  });
+
+  refresh();
+})();
+</script>
